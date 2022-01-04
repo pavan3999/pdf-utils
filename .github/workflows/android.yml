@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  # Manual triggers
+  workflow_dispatch:
+    inputs:
+      git-ref:
+        description: Git Ref (Optional)
+        required: false
+      dry-run:
+        description: Creates a draft release
+        required: false
+
+jobs:
+  build:
+    name: Build app
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone repo
+        uses: actions/checkout@v2
+
+      - name: Validate Gradle Wrapper
+        uses: gradle/wrapper-validation-action@v1
+
+      - uses: actions/checkout@v1
+      - name: set up JDK 11
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+
+      - name: Get NDK 
+        run: sudo ${ANDROID_HOME}/tools/bin/sdkmanager --install "ndk;23.1.7779620"
+
+      - name: Build Release APK
+        run: bash ./gradlew assembleRelease --stacktrace
+
+      - name: Sign APK          
+        uses: r0adkll/sign-android-release@v1
+        with:
+          releaseDirectory: app/build/outputs/apk/release
+          signingKeyBase64: ${{ secrets.SIGNING_KEY }}
+          alias: ${{ secrets.ALIAS }}
+          keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
+          keyPassword: ${{ secrets.KEY_PASSWORD }}
+
+
+      - name: Create Release
+        uses: actions/upload-artifact@v2
+        with:
+          name: pdf-utils
+          path: ${{ env.SIGNED_RELEASE_FILE }}
+
+      - name: Download Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: pdf-utils
