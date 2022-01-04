@@ -36,13 +36,12 @@ android {
               shrinkResources true
               proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
                 }
-            }
-        }
-
         debug {
-            debuggable true
-            testCoverageEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+              debuggable true
+              testCoverageEnabled true
+              proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+                }
+            }
         }
 
 dependencies {
